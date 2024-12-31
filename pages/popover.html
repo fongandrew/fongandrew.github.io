@@ -1,0 +1,46 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>Popover + Overlay</title>
+    <meta name="description" content="Popover + Overlay Demo" />
+    <meta name="viewport" content="width=device-width">
+    <link rel="canonical" href="https://fongandrew.github.io" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="stylesheet" href="../main.css">
+    <style>
+        main, div, label {
+            padding: 16px;
+        }
+
+        label {
+            display: block;
+        }
+
+        body:has(:popover-open)::after {
+            content: ' ';
+            display: block;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div>
+            <button popovertarget="popover">Click me to open a popover</button>
+        </div>
+        <div id="popover" popover>
+            Click anywhere outside this popover to close it.
+        </div>
+
+        <label>
+            <input type="checkbox" />
+            Is this checkbox clickable while the popover is open?
+        </label>
+    </main>
+</body>
+</html>
