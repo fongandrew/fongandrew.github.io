@@ -1,0 +1,70 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>Popover + Overlay</title>
+    <meta name="description" content="Popover + Overlay Demo" />
+    <meta name="viewport" content="width=device-width">
+    <link rel="canonical" href="https://fongandrew.github.io" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="stylesheet" href="../main.css">
+    <style>
+        main, div, label {
+            padding: 16px;
+        }
+
+        label {
+            display: block;
+        }
+
+        body:has(:popover-open)::after {
+            content: ' ';
+            display: block;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div>
+            <button popovertarget="popover">Click me to open a popover</button>
+        </div>
+        <div id="popover" popover="manual">
+            Click anywhere outside this popover to close it.
+        </div>
+
+        <label>
+            <input type="checkbox" />
+            Is this checkbox clickable while the popover is open?
+        </label>
+    </main>
+    <script type="text/javascript">
+        document.addEventListener('click', function(event) {
+            const target = event.target;
+
+            // This will land either on the popover itself (if click is inside
+            // the popover) or the nearest containing context (if outside)
+            const nearestRoot = target?.closest(':popover-open, :modal, body');
+            if (!nearestRoot) return;
+
+            // Closing all popovers within the nearest root effectively closes
+            // popovers when clicking outside of them (and respects popovers
+            // opened from inside modals + nested popovers)
+            let didHide = false;
+            for (const popover of nearestRoot.querySelectorAll(':popover-open')) {
+                popover.hidePopover();
+                didHide = true;
+            }
+
+            if (didHide) {
+                event.stopPropagation();
+                event.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
