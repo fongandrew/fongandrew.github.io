@@ -48,9 +48,9 @@
 			}
 
 			document.addEventListener(
-				'beforetoggle',
+				'touchstart',
 				function (event) {
-					if (event.newState === 'closed') {
+					if (document.querySelector(':popover-open')) {
 						document.body.classList.add('popover-open');
 						document.body.addEventListener('mouseup', removePopoverOpen, {
 							once: true,
