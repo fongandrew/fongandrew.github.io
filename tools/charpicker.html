@@ -222,12 +222,14 @@
 				font-family: inherit;
 				font-size: inherit;
 				width: 100%;
+				min-width: 0;
 				min-height: 5rem;
 				display: flex;
 				flex-direction: column;
 				align-items: center;
 				justify-content: center;
 				color: var(--color-text);
+				overflow: hidden;
 			}
 
 			.char-grid button:hover {
@@ -244,7 +246,13 @@
 				outline-offset: 0.125rem;
 			}
 
-			.char-grid button > div:first-child {
+			.char-grid button > * {
+				overflow: hidden;
+				text-overflow: ellipsis;
+				width: 100%;
+			}
+
+			.char-grid .char-display {
 				font-size: var(--font-size-3xl);
 				font-weight: bold;
 				color: var(--color-text-dark);
@@ -252,7 +260,7 @@
 				line-height: 1;
 			}
 
-			.char-grid button > div:nth-child(2) {
+			.char-grid .char-name {
 				font-size: var(--font-size-sm);
 				color: var(--color-text-muted);
 				font-weight: 500;
@@ -260,7 +268,7 @@
 				letter-spacing: 0.03125rem;
 			}
 
-			.char-grid button > div:last-child {
+			.char-grid .copied-indicator {
 				position: absolute;
 				top: var(--spacing-xs);
 				right: var(--spacing-xs);
@@ -477,23 +485,23 @@
 						button.setAttribute('aria-label', `Copy ${name}: ${char}`);
 						button.setAttribute('title', `Copy ${name}`);
 
-						const display = document.createElement('div');
+						const display = document.createElement('span');
 						display.className = 'char-display';
 						display.textContent = char;
 						display.setAttribute('aria-hidden', 'true');
 
-						const nameDiv = document.createElement('div');
-						nameDiv.className = 'char-name';
-						nameDiv.textContent = name;
-						nameDiv.setAttribute('aria-hidden', 'true');
+						const nameSpan = document.createElement('span');
+						nameSpan.className = 'char-name';
+						nameSpan.textContent = name;
+						nameSpan.setAttribute('aria-hidden', 'true');
 
-						const indicator = document.createElement('div');
+						const indicator = document.createElement('span');
 						indicator.className = 'copied-indicator';
 						indicator.textContent = '✓';
 						indicator.setAttribute('aria-hidden', 'true');
 
 						button.appendChild(display);
-						button.appendChild(nameDiv);
+						button.appendChild(nameSpan);
 						button.appendChild(indicator);
 
 						button.addEventListener('click', function () {
