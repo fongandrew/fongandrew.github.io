@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Unicode Character Picker</title>
+		<style>
+			:root {
+				--color-primary: #007bff;
+				--color-primary-hover: #0056b3;
+				--color-success: #28a745;
+				--color-success-hover: #218838;
+				--color-secondary: #6c757d;
+				--color-secondary-hover: #5a6268;
+				--color-text: #333;
+				--color-text-muted: #6c757d;
+				--color-text-dark: #495057;
+				--color-text-accent: #2c3e50;
+				--color-info: #1565c0;
+				--color-info-bg: #e3f2fd;
+				--color-info-border: #2196f3;
+				--color-bg: #f8f9fa;
+				--color-bg-light: white;
+				--color-border: #e9ecef;
+				--color-border-hover: #dee2e6;
+				--color-button-default: #f8f9fa;
+				--color-button-default-hover: #e9ecef;
+
+				--spacing-xs: 0.25rem;
+				--spacing-sm: 0.5rem;
+				--spacing-md: 0.75rem;
+				--spacing-lg: 1rem;
+				--spacing-xl: 1.25rem;
+				--spacing-2xl: 1.5rem;
+
+				--border-radius-sm: 0.25rem;
+				--border-radius: 0.375rem;
+				--border-radius-md: 0.5rem;
+				--border-radius-lg: 0.75rem;
+
+				--font-size-xs: 0.625rem;
+				--font-size-sm: 0.75rem;
+				--font-size-base: 0.875rem;
+				--font-size-lg: 1rem;
+				--font-size-xl: 1.5rem;
+				--font-size-2xl: 1.75rem;
+				--font-size-3xl: 2rem;
+
+				--shadow-sm: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
+				--shadow-md: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.15);
+			}
+
+			@media (prefers-color-scheme: dark) {
+				:root {
+					--color-primary: #4dabf7;
+					--color-primary-hover: #339af0;
+					--color-success: #51cf66;
+					--color-success-hover: #40c057;
+					--color-secondary: #868e96;
+					--color-secondary-hover: #adb5bd;
+					--color-text: #e9ecef;
+					--color-text-muted: #adb5bd;
+					--color-text-dark: #ced4da;
+					--color-text-accent: #f8f9fa;
+					--color-info: #74c0fc;
+					--color-info-bg: #1c2a3a;
+					--color-info-border: #339af0;
+					--color-bg: #212529;
+					--color-bg-light: #2c3035;
+					--color-border: #495057;
+					--color-border-hover: #6c757d;
+					--color-button-default: #343a40;
+					--color-button-default-hover: #495057;
+					--shadow-sm: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.3);
+					--shadow-md: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.4);
+				}
+			}
+
+			* {
+				box-sizing: border-box;
+			}
+
+			body {
+				font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+				max-width: 37.5rem;
+				margin: 0 auto;
+				padding: var(--spacing-xl);
+				background: var(--color-bg);
+				color: var(--color-text);
+			}
+
+			main {
+				background: var(--color-bg-light);
+				border-radius: var(--border-radius-lg);
+				padding: var(--spacing-2xl);
+				box-shadow: var(--shadow-sm);
+			}
+
+			h1 {
+				margin: 0 0 var(--spacing-2xl) 0;
+				color: var(--color-text-accent);
+				font-size: var(--font-size-xl);
+				text-align: center;
+			}
+
+			.instructions {
+				background: var(--color-info-bg);
+				border-left: var(--spacing-xs) solid var(--color-info-border);
+				padding: var(--spacing-lg);
+				border-radius: var(--border-radius-sm);
+				margin-bottom: var(--spacing-2xl);
+				font-size: var(--font-size-base);
+				color: var(--color-info);
+			}
+
+			/* Search input */
+			input[type='search'] {
+				width: 100%;
+				padding: var(--spacing-md);
+				border: 0.125rem solid var(--color-border);
+				border-radius: var(--border-radius-md);
+				font-size: var(--font-size-base);
+				margin-bottom: var(--spacing-xl);
+				background: var(--color-bg-light);
+				color: var(--color-text);
+				transition: border-color 0.2s ease;
+			}
+
+			input[type='search']:focus {
+				outline: none;
+				border-color: var(--color-primary);
+			}
+
+			/* Default button styles */
+			button {
+				background: var(--color-button-default);
+				color: var(--color-text);
+				border: 0.125rem solid var(--color-border);
+				padding: var(--spacing-md) var(--spacing-xl);
+				border-radius: var(--border-radius);
+				cursor: pointer;
+				font-size: var(--font-size-base);
+				font-weight: 500;
+				transition: all 0.2s ease;
+			}
+
+			button:hover {
+				background: var(--color-button-default-hover);
+				border-color: var(--color-border-hover);
+			}
+
+			/* Primary button class */
+			.primary {
+				background: var(--color-primary);
+				color: white;
+				border-color: var(--color-primary);
+			}
+
+			.primary:hover {
+				background: var(--color-primary-hover);
+				border-color: var(--color-primary-hover);
+			}
+
+			textarea {
+				width: 100%;
+				min-height: 18.75rem;
+				padding: var(--spacing-md);
+				border: 0.125rem solid var(--color-border);
+				border-radius: var(--border-radius-md);
+				font-family: monospace;
+				font-size: var(--font-size-base);
+				resize: vertical;
+				margin-bottom: var(--spacing-md);
+				background: var(--color-bg-light);
+				color: var(--color-text);
+			}
+
+			textarea:focus {
+				outline: none;
+				border-color: var(--color-primary);
+			}
+
+			/* Form button group */
+			form > div {
+				display: flex;
+				gap: var(--spacing-md);
+			}
+
+			form button {
+				padding: var(--spacing-sm) var(--spacing-lg);
+				border-radius: var(--border-radius-sm);
+			}
+
+			form button[type='button'] {
+				background: var(--color-secondary);
+				color: white;
+				border-color: var(--color-secondary);
+			}
+
+			form button[type='button']:hover {
+				background: var(--color-secondary-hover);
+				border-color: var(--color-secondary-hover);
+			}
+
+			/* Character grid */
+			.char-grid {
+				display: grid;
+				grid-template-columns: repeat(3, 1fr);
+				gap: var(--spacing-lg);
+				margin-bottom: var(--spacing-2xl);
+			}
+
+			.char-grid button {
+				background: var(--color-bg);
+				border: 0.125rem solid var(--color-border);
+				border-radius: var(--border-radius-md);
+				padding: var(--spacing-lg) var(--spacing-md);
+				cursor: pointer;
+				transition: all 0.2s ease;
+				text-align: center;
+				position: relative;
+				font-family: inherit;
+				font-size: inherit;
+				width: 100%;
+				min-height: 5rem;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				color: var(--color-text);
+			}
+
+			.char-grid button:hover {
+				background: var(--color-border);
+				border-color: var(--color-primary);
+				transform: translateY(-0.0625rem);
+			}
+
+			.char-grid button:active,
+			.char-grid button:focus {
+				transform: translateY(0);
+				background: var(--color-border-hover);
+				outline: 0.125rem solid var(--color-primary);
+				outline-offset: 0.125rem;
+			}
+
+			.char-grid button > div:first-child {
+				font-size: var(--font-size-3xl);
+				font-weight: bold;
+				color: var(--color-text-dark);
+				margin-bottom: var(--spacing-sm);
+				line-height: 1;
+			}
+
+			.char-grid button > div:nth-child(2) {
+				font-size: var(--font-size-sm);
+				color: var(--color-text-muted);
+				font-weight: 500;
+				text-transform: uppercase;
+				letter-spacing: 0.03125rem;
+			}
+
+			.char-grid button > div:last-child {
+				position: absolute;
+				top: var(--spacing-xs);
+				right: var(--spacing-xs);
+				background: var(--color-success);
+				color: white;
+				font-size: var(--font-size-xs);
+				padding: 0.125rem var(--spacing-xs);
+				border-radius: 0.1875rem;
+				opacity: 0;
+				transition: opacity 0.2s ease;
+			}
+
+			.char-grid button.copied > div:last-child {
+				opacity: 1;
+			}
+
+			/* Feedback toast */
+			#feedback {
+				position: fixed;
+				top: var(--spacing-xl);
+				right: var(--spacing-xl);
+				background: var(--color-success);
+				color: white;
+				padding: var(--spacing-md) var(--spacing-xl);
+				border-radius: var(--border-radius);
+				font-size: var(--font-size-base);
+				font-weight: 500;
+				transform: translateX(100%);
+				opacity: 0;
+				transition: all 0.3s ease;
+				z-index: 1000;
+				box-shadow: var(--shadow-md);
+			}
+
+			#feedback.show {
+				transform: translateX(0);
+				opacity: 1;
+			}
+
+			.sr-only {
+				position: absolute;
+				width: 0.0625rem;
+				height: 0.0625rem;
+				padding: 0;
+				margin: -0.0625rem;
+				overflow: hidden;
+				clip: rect(0, 0, 0, 0);
+				white-space: nowrap;
+				border: 0;
+			}
+
+			@media (max-width: 37.5rem) {
+				.char-grid {
+					grid-template-columns: repeat(3, 1fr);
+					gap: var(--spacing-md);
+				}
+
+				.char-grid button {
+					min-height: 4.375rem;
+					padding: var(--spacing-md) var(--spacing-sm);
+				}
+
+				.char-grid button > div:first-child {
+					font-size: var(--font-size-2xl);
+				}
+			}
+
+			@media (max-width: 25rem) {
+				.char-grid {
+					grid-template-columns: repeat(2, 1fr);
+					gap: var(--spacing-md);
+				}
+
+				.char-grid button {
+					min-height: 3.75rem;
+				}
+
+				.char-grid button > div:first-child {
+					font-size: var(--font-size-xl);
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<main>
+			<h1>Unicode Character Picker</h1>
+
+			<div class="instructions">Click any character below to copy it to your clipboard.</div>
+
+			<input type="search" id="searchInput" placeholder="Filter…" autofocus />
+
+			<form id="configForm" style="display: none">
+				<textarea
+					id="configTextarea"
+					placeholder="Enter characters, one per line:
+… Ellipsis
+' Left Single Quote"
+				></textarea>
+				<div>
+					<button type="submit" class="primary">Save</button>
+					<button type="button" id="resetButton">Reset to Default</button>
+					<button type="button" id="cancelButton">Cancel</button>
+				</div>
+			</form>
+
+			<div class="char-grid" id="charGrid"></div>
+
+			<button type="button" id="configButton">Configure</button>
+		</main>
+
+		<div id="feedback">Copied to clipboard!</div>
+		<div id="srAnnouncements" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+
+		<script>
+			// Default character data
+			const defaultCharacters = [
+				'… Ellipsis',
+				'‘ Left single quote',
+				'’ Right single quote',
+				'“ Left double quote',
+				'” Right double quote',
+				'– En dash',
+				'— Em dash',
+				'© Copyright',
+				'® Registered',
+				'™ Trademark',
+				'° Degree',
+				'× Multiplication',
+				'÷ Division',
+				'± Plus minus',
+				'≠ Not equal',
+				'≤ Less than or equal',
+				'≥ Greater than or equal',
+				'∞ Infinity',
+			];
+
+			// Global variables
+			let characters;
+			let charGrid,
+				configButton,
+				configForm,
+				configTextarea,
+				resetButton,
+				cancelButton,
+				searchInput;
+
+			/**
+			 * Toggles between edit mode and selection mode
+			 * @param {boolean} isEditMode - True to show edit form, false to show character grid
+			 */
+			function toggleMode(isEditMode) {
+				if (isEditMode) {
+					// Switch to edit mode
+					let textValue = '';
+					if (Array.isArray(characters)) {
+						textValue = characters.join('\n');
+					} else {
+						textValue = String(characters);
+					}
+					configTextarea.value = textValue;
+					configForm.style.display = 'block';
+					charGrid.style.display = 'none';
+					configButton.style.display = 'none';
+					searchInput.style.display = 'none';
+					configTextarea.focus();
+				} else {
+					// Switch to selection mode
+					configForm.style.display = 'none';
+					charGrid.style.display = 'grid';
+					configButton.style.display = 'block';
+					searchInput.style.display = 'block';
+					searchInput.focus();
+				}
+			}
+
+			/**
+			 * Filters characters based on search query
+			 * @param {string} query - Search query string
+			 * @returns {string[]} Filtered array of character strings
+			 */
+			function filterCharacters(query) {
+				if (!query.trim()) {
+					return characters;
+				}
+
+				const lowerQuery = query.toLowerCase();
+				return characters.filter(function (line) {
+					const parts = line.trim().split(' ');
+					if (parts.length >= 2) {
+						const char = parts[0];
+						const name = parts.slice(1).join(' ').toLowerCase();
+						return name.includes(lowerQuery) || char === query;
+					}
+					return false;
+				});
+			}
+
+			/**
+			 * Renders character buttons from an array of character definitions
+			 * @param {string[]} chars - Array of character strings in format "char description"
+			 */
+			function renderCharacters(chars) {
+				charGrid.innerHTML = '';
+				chars.forEach(function (line) {
+					const parts = line.trim().split(' ');
+					if (parts.length >= 2) {
+						const char = parts[0];
+						const name = parts.slice(1).join(' ');
+
+						const button = document.createElement('button');
+						button.className = 'char-button';
+						button.setAttribute('data-char', char);
+						button.setAttribute('type', 'button');
+						button.setAttribute('aria-label', `Copy ${name}: ${char}`);
+						button.setAttribute('title', `Copy ${name}`);
+
+						const display = document.createElement('div');
+						display.className = 'char-display';
+						display.textContent = char;
+						display.setAttribute('aria-hidden', 'true');
+
+						const nameDiv = document.createElement('div');
+						nameDiv.className = 'char-name';
+						nameDiv.textContent = name;
+						nameDiv.setAttribute('aria-hidden', 'true');
+
+						const indicator = document.createElement('div');
+						indicator.className = 'copied-indicator';
+						indicator.textContent = '✓';
+						indicator.setAttribute('aria-hidden', 'true');
+
+						button.appendChild(display);
+						button.appendChild(nameDiv);
+						button.appendChild(indicator);
+
+						button.addEventListener('click', function () {
+							copyChar(char, button);
+						});
+
+						charGrid.appendChild(button);
+					}
+				});
+			}
+
+			/**
+			 * Handles form submission to save new character configuration
+			 * @param {Event} e - Form submit event
+			 */
+			function handleConfigSubmit(e) {
+				e.preventDefault();
+				const newCharacters = configTextarea.value
+					.trim()
+					.split('\n')
+					.filter(function (line) {
+						return line.trim().length > 0;
+					});
+				if (newCharacters.length > 0) {
+					characters = newCharacters;
+					localStorage.setItem('unicodeCharacters', characters.join('\n'));
+					// Apply current search filter after updating characters
+					const filteredChars = filterCharacters(searchInput.value);
+					renderCharacters(filteredChars);
+				}
+				toggleMode(false);
+			}
+
+			/**
+			 * Resets the configuration textarea to default characters
+			 */
+			function handleReset() {
+				configTextarea.value = defaultCharacters.join('\n');
+			}
+
+			/**
+			 * Cancels configuration editing and returns to selection mode
+			 */
+			function handleCancel() {
+				toggleMode(false);
+			}
+
+			/**
+			 * Enters configuration mode when the Configure button is clicked
+			 */
+			function handleConfigClick() {
+				toggleMode(true);
+			}
+
+			/**
+			 * Handles search input changes to filter characters
+			 */
+			function handleSearch() {
+				const query = searchInput.value;
+				const filteredChars = filterCharacters(query);
+				renderCharacters(filteredChars);
+			}
+
+			document.addEventListener('DOMContentLoaded', function () {
+				// Get DOM elements
+				charGrid = document.getElementById('charGrid');
+				configButton = document.getElementById('configButton');
+				configForm = document.getElementById('configForm');
+				configTextarea = document.getElementById('configTextarea');
+				resetButton = document.getElementById('resetButton');
+				cancelButton = document.getElementById('cancelButton');
+				searchInput = document.getElementById('searchInput');
+
+				// Load characters from localStorage or use defaults
+				const savedCharacters = localStorage.getItem('unicodeCharacters');
+				if (savedCharacters) {
+					characters = savedCharacters.split('\n');
+				} else {
+					// Use the default array directly since it's already in the right format
+					characters = defaultCharacters;
+				}
+
+				// Initialize the character grid
+				renderCharacters(characters);
+
+				// Add event listeners
+				configButton.addEventListener('click', handleConfigClick);
+				configForm.addEventListener('submit', handleConfigSubmit);
+				resetButton.addEventListener('click', handleReset);
+				cancelButton.addEventListener('click', handleCancel);
+				searchInput.addEventListener('input', handleSearch);
+			});
+
+			/**
+			 * Copies a character to the clipboard using modern or fallback methods
+			 * @param {string} char - The character to copy
+			 * @param {HTMLElement} buttonElement - The button element that was clicked
+			 */
+			function copyChar(char, buttonElement) {
+				// Try modern clipboard API first
+				if (navigator.clipboard && navigator.clipboard.writeText) {
+					navigator.clipboard
+						.writeText(char)
+						.then(function () {
+							showFeedback(buttonElement);
+						})
+						.catch(function () {
+							fallbackCopy(char, buttonElement);
+						});
+				} else {
+					fallbackCopy(char, buttonElement);
+				}
+			}
+
+			/**
+			 * Fallback copy method using execCommand for older browsers
+			 * @param {string} char - The character to copy
+			 * @param {HTMLElement} buttonElement - The button element that was clicked
+			 */
+			function fallbackCopy(char, buttonElement) {
+				const textArea = document.createElement('textarea');
+				textArea.value = char;
+				textArea.style.position = 'fixed';
+				textArea.style.left = '-999999px';
+				textArea.style.top = '-999999px';
+				document.body.appendChild(textArea);
+				textArea.focus();
+				textArea.select();
+
+				try {
+					const successful = document.execCommand('copy');
+					if (successful) {
+						showFeedback(buttonElement);
+					} else {
+						console.log('Copy command failed');
+					}
+				} catch (err) {
+					console.log('Copy failed: ' + err);
+				}
+
+				document.body.removeChild(textArea);
+			}
+
+			/**
+			 * Shows visual feedback when a character is successfully copied
+			 * @param {HTMLElement} buttonElement - The button element that was clicked
+			 */
+			function showFeedback(buttonElement) {
+				const feedback = document.getElementById('feedback');
+				const srAnnouncements = document.getElementById('srAnnouncements');
+
+				feedback.classList.add('show');
+
+				if (buttonElement) {
+					buttonElement.classList.add('copied');
+					const char = buttonElement.getAttribute('data-char');
+					const label = buttonElement.getAttribute('aria-label');
+					srAnnouncements.textContent = `${label} copied to clipboard`;
+				}
+
+				setTimeout(function () {
+					feedback.classList.remove('show');
+				}, 2000);
+
+				setTimeout(function () {
+					if (buttonElement) {
+						buttonElement.classList.remove('copied');
+					}
+				}, 1000);
+
+				setTimeout(function () {
+					srAnnouncements.textContent = '';
+				}, 3000);
+			}
+		</script>
+	</body>
+</html>
