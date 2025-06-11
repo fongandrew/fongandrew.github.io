@@ -1,0 +1,28 @@
+{
+  "name": "fongandrew.github.io",
+  "version": "1.0.0",
+  "description": "It's a GitHub pages site. I stick stuff here sometimes.",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fongandrew/fongandrew.github.io.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/fongandrew/fongandrew.github.io/issues"
+  },
+  "homepage": "https://github.com/fongandrew/fongandrew.github.io#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.53.0",
+    "playwright": "^1.53.0"
+  }
+}

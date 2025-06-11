@@ -352,12 +352,12 @@
 
 			<input type="search" id="searchInput" placeholder="Filter…" autofocus />
 
-			<form id="configForm" style="display: none">
+			<form id="configForm" style="display: none" data-testid="config-form">
 				<textarea
 					id="configTextarea"
 					placeholder="Enter characters, one per line:
 … Ellipsis
-' Left Single Quote"
+‘ Left Single Quote"
 				></textarea>
 				<div>
 					<button type="submit" class="primary">Save</button>
@@ -366,12 +366,12 @@
 				</div>
 			</form>
 
-			<div class="char-grid" id="charGrid"></div>
+			<div class="char-grid" id="charGrid" data-testid="char-grid"></div>
 
 			<button type="button" id="configButton">Configure</button>
 		</main>
 
-		<div id="feedback">Copied to clipboard!</div>
+		<div id="feedback" data-testid="feedback">Copied to clipboard!</div>
 		<div id="srAnnouncements" aria-live="polite" aria-atomic="true" class="sr-only"></div>
 
 		<script>
