@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Slack Custom Emoji Generator</title>
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			body {
+				font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+				min-height: 100vh;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				padding: 20px;
+			}
+
+			.container {
+				background: white;
+				border-radius: 20px;
+				padding: 40px;
+				box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+				max-width: 600px;
+				width: 100%;
+			}
+
+			h1 {
+				text-align: center;
+				color: #333;
+				margin-bottom: 30px;
+				font-size: 2.2em;
+				font-weight: 700;
+			}
+
+			.emoji-preview {
+				width: 128px;
+				height: 128px;
+				border: 3px dashed #ddd;
+				border-radius: 16px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				margin: 0 auto 30px;
+				background: #f8f9fa;
+				transition: all 0.3s ease;
+				position: relative;
+				overflow: hidden;
+			}
+
+			.emoji-preview.has-content {
+				border-style: solid;
+				border-color: #4caf50;
+				background: white;
+			}
+
+			#emojiCanvas {
+				max-width: 100%;
+				max-height: 100%;
+				border-radius: 12px;
+			}
+
+			.controls {
+				display: grid;
+				gap: 20px;
+				margin-bottom: 30px;
+			}
+
+			.control-group {
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+			}
+
+			.control-row {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				gap: 15px;
+			}
+
+			label {
+				font-weight: 600;
+				color: #555;
+				font-size: 14px;
+				text-transform: uppercase;
+				letter-spacing: 0.5px;
+			}
+
+			input[type='text'],
+			input[type='number'],
+			input[type='range'],
+			textarea,
+			select {
+				padding: 12px 16px;
+				border: 2px solid #e1e5e9;
+				border-radius: 10px;
+				font-size: 16px;
+				transition: border-color 0.3s ease;
+				background: white;
+			}
+
+			input[type='text']:focus,
+			input[type='number']:focus,
+			input[type='range']:focus,
+			textarea:focus,
+			select:focus {
+				outline: none;
+				border-color: #667eea;
+				box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+			}
+
+			input[type='color'] {
+				width: 100%;
+				height: 50px;
+				border: none;
+				border-radius: 10px;
+				cursor: pointer;
+				background: none;
+			}
+
+			input[type='range'] {
+				width: 100%;
+				height: 8px;
+				background: #e1e5e9;
+				border-radius: 4px;
+				outline: none;
+				-webkit-appearance: none;
+				appearance: none;
+			}
+
+			input[type='range']::-webkit-slider-thumb {
+				appearance: none;
+				width: 20px;
+				height: 20px;
+				border-radius: 50%;
+				background: #667eea;
+				cursor: pointer;
+				box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+			}
+
+			input[type='range']::-moz-range-thumb {
+				width: 20px;
+				height: 20px;
+				border-radius: 50%;
+				background: #667eea;
+				cursor: pointer;
+				border: none;
+				box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+			}
+
+			.color-row {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				gap: 15px;
+			}
+
+			.export-section {
+				text-align: center;
+				padding-top: 20px;
+				border-top: 2px solid #f0f0f0;
+			}
+
+			.export-btn {
+				background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+				color: white;
+				border: none;
+				padding: 15px 30px;
+				border-radius: 50px;
+				font-size: 16px;
+				font-weight: 600;
+				cursor: pointer;
+				transition: all 0.3s ease;
+				text-transform: uppercase;
+				letter-spacing: 1px;
+				margin-top: 10px;
+			}
+
+			.export-btn:hover {
+				transform: translateY(-2px);
+				box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+			}
+
+			.export-btn:disabled {
+				background: #ccc;
+				cursor: not-allowed;
+				transform: none;
+				box-shadow: none;
+			}
+
+			.preview-text {
+				position: absolute;
+				text-align: center;
+				color: #999;
+				font-style: italic;
+				font-size: 14px;
+			}
+
+			.tip {
+				background: #f8f9fa;
+				border-left: 4px solid #667eea;
+				padding: 15px;
+				margin-top: 20px;
+				border-radius: 0 8px 8px 0;
+				font-size: 14px;
+				color: #666;
+			}
+
+			.preset-btn {
+				padding: 8px;
+				border: none;
+				border-radius: 6px;
+				cursor: pointer;
+				font-size: 12px;
+				font-weight: 600;
+				transition: transform 0.2s ease;
+			}
+
+			.preset-btn:hover {
+				transform: scale(1.05);
+			}
+
+			.preset-grid {
+				display: grid;
+				grid-template-columns: repeat(3, 1fr);
+				gap: 8px;
+				margin-top: 8px;
+			}
+
+			.sr-only {
+				position: absolute;
+				width: 1px;
+				height: 1px;
+				padding: 0;
+				margin: -1px;
+				overflow: hidden;
+				clip: rect(0, 0, 0, 0);
+				border: 0;
+			}
+
+			fieldset {
+				border: none;
+				padding: 0;
+				margin: 0;
+			}
+
+			legend {
+				font-weight: 600;
+				color: #555;
+				font-size: 14px;
+				text-transform: uppercase;
+				letter-spacing: 0.5px;
+			}
+
+			@media (max-width: 768px) {
+				.container {
+					padding: 20px;
+				}
+
+				.control-row,
+				.color-row {
+					grid-template-columns: 1fr;
+				}
+
+				.preset-grid {
+					grid-template-columns: repeat(2, 1fr);
+				}
+
+				h1 {
+					font-size: 1.8em;
+				}
+			}
+
+			@media (prefers-color-scheme: dark) {
+				body {
+					background: linear-gradient(135deg, #2c3e50 0%, #4a4a4a 100%);
+				}
+
+				.container {
+					background: #1e1e1e;
+					color: #e0e0e0;
+				}
+
+				h1 {
+					color: #ffffff;
+				}
+
+				.emoji-preview {
+					border-color: #444;
+					background: #2a2a2a;
+				}
+
+				.emoji-preview.has-content {
+					border-color: #4caf50;
+					background: #1a1a1a;
+				}
+
+				label,
+				legend {
+					color: #ccc;
+				}
+
+				input[type='text'],
+				input[type='number'],
+				input[type='range'],
+				textarea,
+				select {
+					border-color: #444;
+					background: #2a2a2a;
+					color: #e0e0e0;
+				}
+
+				input[type='text']:focus,
+				input[type='number']:focus,
+				input[type='range']:focus,
+				textarea:focus,
+				select:focus {
+					border-color: #667eea;
+					box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+				}
+
+				.export-section {
+					border-color: #444;
+				}
+
+				.tip {
+					background: #2a2a2a;
+					border-color: #667eea;
+					color: #ccc;
+				}
+
+				.preview-text {
+					color: #666;
+				}
+
+				input[type='range'] {
+					background: #444;
+				}
+
+				input[type='range']::-webkit-slider-thumb {
+					background: #667eea;
+				}
+
+				input[type='range']::-moz-range-thumb {
+					background: #667eea;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<h1>🎨 Slack Emoji Generator</h1>
+
+			<div class="emoji-preview" id="emojiPreview" role="img" aria-label="Emoji preview">
+				<canvas id="emojiCanvas" width="128" height="128" aria-label="Generated emoji canvas"></canvas>
+				<div class="preview-text" id="previewText" aria-live="polite">Type something below!</div>
+			</div>
+
+			<form class="controls" role="form" aria-label="Emoji customization controls">
+				<div class="control-group">
+					<label for="textInput">Emoji Text</label>
+					<textarea
+						id="textInput"
+						name="text"
+						aria-describedby="text-help"
+						placeholder="Enter your text (e.g., :fire:, YAY!, 🔥)\nSupports multiple lines!"
+						rows="3"
+					></textarea>
+					<div id="text-help" class="sr-only">Enter text to display on your emoji. Supports multiple lines.</div>
+				</div>
+
+				<div class="control-row">
+					<div class="control-group">
+						<label for="fontSize"
+							>Font Size (<span id="fontSizeValue" aria-live="polite">32</span>px)</label
+						>
+						<input type="range" id="fontSize" name="fontSize" value="32" min="16" max="72" step="2" aria-describedby="fontSize-help" />
+						<div id="fontSize-help" class="sr-only">Adjust font size from 16 to 72 pixels</div>
+					</div>
+					<div class="control-group">
+						<label for="fontFamily">Font Style</label>
+						<select id="fontFamily" name="fontFamily" aria-describedby="font-help">
+							<option
+								value="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+								selected
+							>
+								System Font
+							</option>
+							<option value="Arial Black">Arial Black</option>
+							<option value="Impact">Impact</option>
+							<option value="Georgia">Georgia</option>
+							<option value="Times New Roman">Times New Roman</option>
+							<option value="Courier New">Courier New</option>
+							<option value="Comic Sans MS">Comic Sans MS</option>
+							<option value="Trebuchet MS">Trebuchet MS</option>
+						</select>
+						<div id="font-help" class="sr-only">Choose font family for your emoji text</div>
+					</div>
+				</div>
+
+				<div class="color-row">
+					<div class="control-group">
+						<label for="textColor">Text Color</label>
+						<input type="color" id="textColor" name="textColor" value="#ffffff" aria-describedby="text-color-help" />
+						<div id="text-color-help" class="sr-only">Choose color for the text</div>
+					</div>
+					<div class="control-group">
+						<label for="bgColor">Background Color</label>
+						<input type="color" id="bgColor" name="bgColor" value="#ff6b6b" aria-describedby="bg-color-help" />
+						<div id="bg-color-help" class="sr-only">Choose background color for the emoji</div>
+					</div>
+				</div>
+
+				<fieldset class="control-group">
+					<legend>Quick Color Presets</legend>
+					<div class="preset-grid" role="group" aria-label="Color preset buttons">
+						<button
+							class="preset-btn"
+							onclick="applyPreset('#ff6b6b', '#ffffff')"
+							style="background: #ff6b6b; color: #ffffff"
+						>
+							Red & White
+						</button>
+						<button
+							class="preset-btn"
+							onclick="applyPreset('#4ecdc4', '#ffffff')"
+							style="background: #4ecdc4; color: #ffffff"
+						>
+							Teal & White
+						</button>
+						<button
+							class="preset-btn"
+							onclick="applyPreset('#45b7d1', '#ffffff')"
+							style="background: #45b7d1; color: #ffffff"
+						>
+							Blue & White
+						</button>
+						<button
+							class="preset-btn"
+							onclick="applyPreset('#f9ca24', '#2c2c54')"
+							style="background: #f9ca24; color: #2c2c54"
+						>
+							Yellow & Dark
+						</button>
+						<button
+							class="preset-btn"
+							onclick="applyPreset('#6c5ce7', '#ffffff')"
+							style="background: #6c5ce7; color: #ffffff"
+						>
+							Purple & White
+						</button>
+						<button
+							class="preset-btn"
+							onclick="applyPreset('#2c2c54', '#ffffff')"
+							style="background: #2c2c54; color: #ffffff"
+						>
+							Dark & White
+						</button>
+					</div>
+				</fieldset>
+			</form>
+
+			<div class="export-section" role="region" aria-label="Export controls">
+				<button class="export-btn" id="exportBtn" type="button" onclick="exportEmoji()" disabled aria-describedby="export-help">
+					📱 Export for Slack
+				</button>
+				<div id="export-help" class="sr-only">Download your custom emoji as a PNG file</div>
+				<div class="tip">
+					💡 <strong>Tip:</strong> Slack custom emojis work best at 128x128 pixels. Keep
+					text short and bold for best results!
+				</div>
+			</div>
+		</div>
+
+		<script>
+			const canvas = document.getElementById('emojiCanvas');
+			const ctx = canvas.getContext('2d');
+			const textInput = document.getElementById('textInput');
+			const fontSize = document.getElementById('fontSize');
+			const fontFamily = document.getElementById('fontFamily');
+			const textColor = document.getElementById('textColor');
+			const bgColor = document.getElementById('bgColor');
+			const exportBtn = document.getElementById('exportBtn');
+			const previewText = document.getElementById('previewText');
+			const emojiPreview = document.getElementById('emojiPreview');
+
+			// Set canvas size for crisp rendering
+			canvas.width = 128;
+			canvas.height = 128;
+
+			function drawEmoji() {
+				const text = textInput.value.trim();
+
+				if (!text) {
+					// Show placeholder
+					ctx.clearRect(0, 0, canvas.width, canvas.height);
+					previewText.style.display = 'block';
+					emojiPreview.classList.remove('has-content');
+					exportBtn.disabled = true;
+					return;
+				}
+
+				// Hide placeholder and show canvas
+				previewText.style.display = 'none';
+				emojiPreview.classList.add('has-content');
+				exportBtn.disabled = false;
+
+				// Clear canvas
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+				// Draw background
+				ctx.fillStyle = bgColor.value;
+				ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+				// Split text into lines
+				const lines = text.split('\n');
+				const size = parseInt(fontSize.value);
+
+				// Set text properties
+				ctx.font = `bold ${size}px ${fontFamily.value}`;
+				ctx.fillStyle = textColor.value;
+				ctx.textAlign = 'center';
+				ctx.textBaseline = 'middle';
+
+				// Calculate line height and starting Y position
+				const lineHeight = size * 1.2;
+				const totalHeight = (lines.length - 1) * lineHeight;
+				const startY = canvas.height / 2 - totalHeight / 2;
+
+				// Draw each line of text
+				lines.forEach((line, index) => {
+					const y = startY + index * lineHeight;
+
+					ctx.fillText(line, canvas.width / 2, y);
+				});
+			}
+
+			function exportEmoji() {
+				if (!textInput.value.trim()) {
+					alert('Please enter some text first!');
+					return;
+				}
+
+				// Create download link
+				const link = document.createElement('a');
+				const filename = `${textInput.value
+					.replace(/[^a-zA-Z0-9]/g, '-')
+					.toLowerCase()}.png`;
+
+				link.download = filename;
+				link.href = canvas.toDataURL('image/png');
+
+				// Trigger download
+				document.body.appendChild(link);
+				link.click();
+				document.body.removeChild(link);
+
+				// Show success message
+				const originalText = exportBtn.textContent;
+				exportBtn.textContent = '✅ Downloaded!';
+				exportBtn.style.background = '#4CAF50';
+
+				setTimeout(() => {
+					exportBtn.textContent = originalText;
+					exportBtn.style.background = '';
+				}, 2000);
+			}
+
+			function applyPreset(bg, text) {
+				bgColor.value = bg;
+				textColor.value = text;
+				drawEmoji();
+			}
+
+			// Event listeners
+			textInput.addEventListener('input', drawEmoji);
+			fontSize.addEventListener('input', function () {
+				document.getElementById('fontSizeValue').textContent = this.value;
+				drawEmoji();
+			});
+			fontFamily.addEventListener('change', drawEmoji);
+			textColor.addEventListener('change', drawEmoji);
+			bgColor.addEventListener('change', drawEmoji);
+
+			// Initial draw
+			drawEmoji();
+		</script>
+	</body>
+</html>
