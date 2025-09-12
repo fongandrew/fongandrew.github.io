@@ -356,8 +356,15 @@
 			<h1>🎨 Slack Emoji Generator</h1>
 
 			<div class="emoji-preview" id="emojiPreview" role="img" aria-label="Emoji preview">
-				<canvas id="emojiCanvas" width="128" height="128" aria-label="Generated emoji canvas"></canvas>
-				<div class="preview-text" id="previewText" aria-live="polite">Type something below!</div>
+				<canvas
+					id="emojiCanvas"
+					width="128"
+					height="128"
+					aria-label="Generated emoji canvas"
+				></canvas>
+				<div class="preview-text" id="previewText" aria-live="polite">
+					Type something below!
+				</div>
 			</div>
 
 			<form class="controls" role="form" aria-label="Emoji customization controls">
@@ -370,16 +377,30 @@
 						placeholder="Enter your text (e.g., :fire:, YAY!, 🔥)\nSupports multiple lines!"
 						rows="3"
 					></textarea>
-					<div id="text-help" class="sr-only">Enter text to display on your emoji. Supports multiple lines.</div>
+					<div id="text-help" class="sr-only">
+						Enter text to display on your emoji. Supports multiple lines.
+					</div>
 				</div>
 
 				<div class="control-row">
 					<div class="control-group">
 						<label for="fontSize"
-							>Font Size (<span id="fontSizeValue" aria-live="polite">32</span>px)</label
+							>Font Size (<span id="fontSizeValue" aria-live="polite">32</span
+							>px)</label
 						>
-						<input type="range" id="fontSize" name="fontSize" value="32" min="16" max="72" step="2" aria-describedby="fontSize-help" />
-						<div id="fontSize-help" class="sr-only">Adjust font size from 16 to 72 pixels</div>
+						<input
+							type="range"
+							id="fontSize"
+							name="fontSize"
+							value="32"
+							min="16"
+							max="72"
+							step="2"
+							aria-describedby="fontSize-help"
+						/>
+						<div id="fontSize-help" class="sr-only">
+							Adjust font size from 16 to 72 pixels
+						</div>
 					</div>
 					<div class="control-group">
 						<label for="fontFamily">Font Style</label>
@@ -398,20 +419,36 @@
 							<option value="Comic Sans MS">Comic Sans MS</option>
 							<option value="Trebuchet MS">Trebuchet MS</option>
 						</select>
-						<div id="font-help" class="sr-only">Choose font family for your emoji text</div>
+						<div id="font-help" class="sr-only">
+							Choose font family for your emoji text
+						</div>
 					</div>
 				</div>
 
 				<div class="color-row">
 					<div class="control-group">
 						<label for="textColor">Text Color</label>
-						<input type="color" id="textColor" name="textColor" value="#ffffff" aria-describedby="text-color-help" />
+						<input
+							type="color"
+							id="textColor"
+							name="textColor"
+							value="#ffffff"
+							aria-describedby="text-color-help"
+						/>
 						<div id="text-color-help" class="sr-only">Choose color for the text</div>
 					</div>
 					<div class="control-group">
 						<label for="bgColor">Background Color</label>
-						<input type="color" id="bgColor" name="bgColor" value="#ff6b6b" aria-describedby="bg-color-help" />
-						<div id="bg-color-help" class="sr-only">Choose background color for the emoji</div>
+						<input
+							type="color"
+							id="bgColor"
+							name="bgColor"
+							value="#ff6b6b"
+							aria-describedby="bg-color-help"
+						/>
+						<div id="bg-color-help" class="sr-only">
+							Choose background color for the emoji
+						</div>
 					</div>
 				</div>
 
@@ -448,7 +485,7 @@
 							onclick="applyPreset('#f9ca24', '#2c2c54')"
 							style="background: #f9ca24; color: #2c2c54"
 						>
-							Yellow & Dark
+							Yellow & Black
 						</button>
 						<button
 							type="button"
@@ -464,14 +501,21 @@
 							onclick="applyPreset('#2c2c54', '#ffffff')"
 							style="background: #2c2c54; color: #ffffff"
 						>
-							Dark & White
+							Black & White
 						</button>
 					</div>
 				</fieldset>
 			</form>
 
 			<div class="export-section" role="region" aria-label="Export controls">
-				<button class="export-btn" id="exportBtn" type="button" onclick="exportEmoji()" disabled aria-describedby="export-help">
+				<button
+					class="export-btn"
+					id="exportBtn"
+					type="button"
+					onclick="exportEmoji()"
+					disabled
+					aria-describedby="export-help"
+				>
 					📱 Export for Slack
 				</button>
 				<div id="export-help" class="sr-only">Download your custom emoji as a PNG file</div>
