@@ -374,7 +374,7 @@
 						id="textInput"
 						name="text"
 						aria-describedby="text-help"
-						placeholder="Enter your text (e.g., :fire:, YAY!, 🔥)\nSupports multiple lines!"
+						placeholder="Enter your text (e.g., :fire:, YAY!, 🔥)"
 						rows="3"
 					></textarea>
 					<div id="text-help" class="sr-only">
@@ -578,8 +578,8 @@
 
 				// Calculate line height and starting Y position
 				const lineHeight = size * 1.2;
-				const totalHeight = (lines.length - 1) * lineHeight;
-				const startY = canvas.height / 2 - totalHeight / 2;
+				const extraLineHeight = (lines.length - 1) * lineHeight;
+				const startY = (canvas.height / 2 - extraLineHeight / 2) * 1.02;
 
 				// Draw each line of text
 				lines.forEach((line, index) => {
