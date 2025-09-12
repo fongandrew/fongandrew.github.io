@@ -35,14 +35,9 @@ test.describe('Textmoji Generator', () => {
 		// Enter text to enable preview
 		await textInput.fill('TEST');
 
-		// Click the Teal & White preset button by triggering its onclick handler
-		await page.evaluate(() => {
-			const button = Array.from(document.querySelectorAll('button')).find(b => b.textContent?.includes('Teal & White'));
-			if (button && button.onclick) {
-				// Workaround for .onclick not being triggered by .click() in Playwright?
-				button.onclick(new PointerEvent('click'));
-			}
-		});
+		// Click the Teal & White preset button
+		const presetButton = page.locator('button:has-text("Teal & White")');
+		await presetButton.click();
 
 		// Colors should change to preset values
 		await expect(bgColor).toHaveValue('#4ecdc4');
