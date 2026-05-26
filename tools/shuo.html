@@ -1445,10 +1445,7 @@
     const reader = new FileReader();
     reader.onload = (e) => {
       const text = e.target.result;
-      const imported = text
-        .split(/[\n\r]+/)
-        .map((s) => s.trim())
-        .filter((s) => s.length > 0);
+      const imported = parsePhrases(text);
 
       if (imported.length === 0) {
         alert('No phrases found in file.');
