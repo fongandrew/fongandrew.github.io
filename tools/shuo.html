@@ -1299,6 +1299,12 @@
       .filter((s) => s.length > 0);
   }
 
+  function parsePhrase(phrase) {
+    const match = phrase.match(/^(.+?)[：:](.+)$/);
+    if (match) return { display: match[1].trim(), speak: match[2].trim() };
+    return { display: phrase, speak: phrase };
+  }
+
   function updateCount() {
     const input = document.getElementById('phraseInput').value;
     const parsed = parsePhrases(input);
@@ -1486,8 +1492,9 @@
     controls.style.display = 'flex';
 
     phrases.forEach((phrase, i) => {
+      const { display, speak } = parsePhrase(phrase);
       const card = document.createElement('div');
-      card.className = 'phrase-card' + (phrase.length > 4 ? ' long' : '');
+      card.className = 'phrase-card' + (display.length > 4 ? ' long' : '');
       card.style.animation = `cardIn 0.3s ease ${i * 0.03}s both`;
       card.innerHTML = `
         <span class="sound-icon">
@@ -1498,9 +1505,9 @@
           </svg>
         </span>
         <span class="phrase-index">${i + 1}</span>
-        <div class="phrase-hanzi">${escapeHtml(phrase)}</div>
+        <div class="phrase-hanzi">${escapeHtml(display)}</div>
       `;
-      card.addEventListener('click', () => speakPhrase(phrase, card));
+      card.addEventListener('click', () => speakPhrase(speak, card));
       grid.appendChild(card);
     });
   }
@@ -1550,7 +1557,7 @@
       if (speakAllCancel) break;
 
       await new Promise((resolve) => {
-        const utter = new SpeechSynthesisUtterance(phrases[i]);
+        const utter = new SpeechSynthesisUtterance(parsePhrase(phrases[i]).speak);
         if (selectedVoice) utter.voice = selectedVoice;
         utter.lang = selectedVoice ? selectedVoice.lang : 'zh-CN';
         utter.rate = parseFloat(speedRange.value);
@@ -1621,11 +1628,12 @@
     if (flashIndex >= flashDeck.length) flashIndex = 0;
 
     const phrase = flashDeck[flashIndex];
+    const { display } = parsePhrase(phrase);
     const card = document.getElementById('flashCard');
     const hanzi = document.getElementById('flashHanzi');
 
-    hanzi.textContent = phrase;
-    card.className = 'flash-card' + (phrase.length > 4 ? ' long-phrase' : '') + ' slide-in';
+    hanzi.textContent = display;
+    card.className = 'flash-card' + (display.length > 4 ? ' long-phrase' : '') + ' slide-in';
 
     const completed = flashTotal - flashDeck.length;
     const pct = flashTotal > 0 ? Math.round((completed / flashTotal) * 100) : 0;
@@ -1666,7 +1674,7 @@
   function flashSpeak() {
     if (flashDeck.length > 0 && flashIndex < flashDeck.length) {
       const card = document.getElementById('flashCard');
-      speakPhrase(flashDeck[flashIndex], card);
+      speakPhrase(parsePhrase(flashDeck[flashIndex]).speak, card);
     }
   }
 
