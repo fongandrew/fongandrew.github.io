@@ -257,6 +257,13 @@
     border-color: var(--vermillion);
   }
 
+  .bundle-actions-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex: 1;
+  }
+
   .bundle-actions {
     display: flex;
     gap: 0.25rem;
@@ -438,6 +445,15 @@
     border-color: var(--ink);
   }
 
+  .btn-secondary:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+  .btn-secondary:disabled:hover {
+    opacity: 0.35;
+    border-color: var(--mist);
+  }
+
   .phrase-count {
     font-size: 0.75rem;
     opacity: 0.4;
@@ -548,6 +564,56 @@
     animation: pulse 0.8s ease infinite;
   }
 
+  .flash-undo-corner {
+    position: absolute;
+    top: 0.6rem;
+    left: 0.6rem;
+    z-index: 2;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: var(--mist);
+    color: var(--ink);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0.55;
+    transition: var(--transition);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .flash-undo-corner:hover { opacity: 1; background: var(--paper-deep); }
+  .flash-undo-corner svg { width: 16px; height: 16px; }
+  /* Hidden entirely when there's nothing to undo */
+  .flash-undo-corner:disabled {
+    opacity: 0;
+    pointer-events: none;
+    cursor: default;
+  }
+
+  .flash-speaker {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    color: var(--ink);
+    opacity: 0.22;
+    pointer-events: none;
+    transition: var(--transition);
+  }
+
+  .flash-speaker svg {
+    width: 20px;
+    height: 20px;
+    display: block;
+  }
+
+  .flash-card.speaking .flash-speaker {
+    opacity: 0.7;
+    color: var(--vermillion);
+  }
+
   .flash-hanzi {
     font-family: 'Noto Sans SC', sans-serif;
     font-weight: 700;
@@ -564,6 +630,11 @@
     display: flex;
     gap: 0.75rem;
     justify-content: center;
+    margin-top: 1.25rem;
+  }
+
+  .flash-buttons .btn-flash {
+    flex: 1;
   }
 
   .btn-flash {
@@ -595,12 +666,6 @@
     width: 18px;
     height: 18px;
   }
-
-  .btn-flash-speak {
-    background: var(--gold);
-    color: white;
-  }
-  .btn-flash-speak:hover { background: var(--gold-light); }
 
   .btn-flash-wrong {
     background: var(--vermillion);
@@ -972,13 +1037,18 @@
     .flash-card.long-phrase .flash-hanzi { font-size: 1.8rem; }
     .flash-card { min-height: 200px; padding: 2.5rem 1.5rem; }
     .flash-buttons {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0.5rem;
+      flex-direction: row;
+      gap: 0.75rem;
     }
-    .btn-flash {
-      justify-content: center;
-      width: 100%;
+    /* Big, tall Wrong / Correct buttons on the left & right */
+    .flash-buttons .btn-flash {
+      flex: 1;
+      min-height: 88px;
+      border-radius: var(--radius);
+    }
+    .flash-buttons .btn-flash svg {
+      width: 30px;
+      height: 30px;
     }
     .flash-done { padding: 2rem 1.5rem; }
     .flash-done-title { font-size: 1.4rem; }
@@ -1048,6 +1118,7 @@
 <div class="bundle-bar">
   <label>Bundle</label>
   <select id="bundleSelect"></select>
+  <div class="bundle-actions-wrap">
   <div class="bundle-actions">
     <button class="btn-icon" onclick="createBundle()" title="New bundle" aria-label="New bundle">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -1068,6 +1139,7 @@
     </button>
     <input type="file" id="importFile" accept=".txt,.csv" style="display:none" onchange="importBundle(event)">
   </div>
+  </div>
 </div>
 
 <main>
@@ -1082,7 +1154,7 @@
     </div>
     <div class="edit-actions">
       <button class="btn-primary" onclick="applyPhrases()">Practice these →</button>
-      <button class="btn-secondary" onclick="loadSample()">Load sample</button>
+      <button class="btn-secondary" id="loadSampleBtn" onclick="loadSample()" title="Load sample phrases (only available when the bundle is empty)">Load sample</button>
       <span class="phrase-count" id="phraseCount"></span>
     </div>
   </div>
@@ -1122,12 +1194,15 @@
       </div>
       <div class="flash-counter" id="flashCounter"></div>
       <div class="flash-card" id="flashCard" onclick="flashSpeak()">
+        <button class="flash-undo-corner" id="flashUndoBtn" onclick="event.stopPropagation(); flashUndo()" aria-label="Undo last answer" title="Undo last answer" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+        </button>
+        <span class="flash-speaker" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        </span>
         <div class="flash-hanzi" id="flashHanzi"></div>
       </div>
       <div class="flash-buttons">
-        <button class="btn-flash btn-flash-speak" onclick="flashSpeak()" aria-label="Speak">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-        </button>
         <button class="btn-flash btn-flash-wrong" onclick="flashAnswer(false)" aria-label="Wrong">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
@@ -1144,6 +1219,7 @@
       <div class="flash-done-stats" id="flashStats"></div>
       <div class="flash-done-actions">
         <button class="btn-primary" onclick="startFlashSession()">Practice again</button>
+        <button class="btn-secondary" id="flashDoneUndoBtn" onclick="flashUndo()">Undo last answer</button>
         <button class="btn-secondary" onclick="switchMode('speak')">Back to grid</button>
       </div>
     </div>
@@ -1166,6 +1242,7 @@
   let flashCorrect = 0;
   let flashWrong = 0;
   let flashSeen = new Set();
+  let flashHistory = [];
 
   // ── Storage ──
   const STORAGE_KEY = 'shuo_data';
@@ -1311,6 +1388,8 @@
     const el = document.getElementById('phraseCount');
     el.textContent =
       parsed.length > 0 ? `${parsed.length} phrase${parsed.length !== 1 ? 's' : ''}` : '';
+    // Disable "Load sample" when the bundle already has cards, to avoid clobbering them
+    document.getElementById('loadSampleBtn').disabled = parsed.length > 0;
   }
 
   let saveTimeout = null;
@@ -1611,12 +1690,18 @@
     flashCorrect = 0;
     flashWrong = 0;
     flashSeen = new Set();
+    flashHistory = [];
 
     document.getElementById('flashEmpty').style.display = 'none';
     document.getElementById('flashSession').style.display = '';
     document.getElementById('flashDone').style.display = 'none';
 
     showFlashCard();
+    updateFlashUndoBtn();
+  }
+
+  function updateFlashUndoBtn() {
+    document.getElementById('flashUndoBtn').disabled = flashHistory.length === 0;
   }
 
   function showFlashCard() {
@@ -1647,6 +1732,15 @@
     const phrase = flashDeck[flashIndex];
     const card = document.getElementById('flashCard');
 
+    // Snapshot state so this answer can be undone
+    flashHistory.push({
+      deck: [...flashDeck],
+      index: flashIndex,
+      correct: flashCorrect,
+      wrong: flashWrong,
+      seen: new Set(flashSeen),
+    });
+
     if (!flashSeen.has(phrase)) {
       flashSeen.add(phrase);
       if (correct) flashCorrect++;
@@ -1661,14 +1755,39 @@
     } else {
       const current = flashDeck.splice(flashIndex, 1)[0];
       const remaining = flashDeck.length - flashIndex;
-      const offset = Math.floor(Math.random() * Math.max(1, remaining)) + 1;
+      // Show the card again at least 5 cards later, unless fewer remain
+      const minOffset = Math.min(5, remaining);
+      const offset =
+        Math.floor(Math.random() * (remaining - minOffset + 1)) + minOffset;
       const insertAt = Math.min(flashIndex + offset, flashDeck.length);
       flashDeck.splice(insertAt, 0, current);
       if (flashIndex >= flashDeck.length) flashIndex = 0;
     }
 
     card.classList.add('slide-out');
-    setTimeout(() => showFlashCard(), 200);
+    setTimeout(() => {
+      showFlashCard();
+      updateFlashUndoBtn();
+    }, 200);
+  }
+
+  function flashUndo() {
+    if (flashHistory.length === 0) return;
+    synth.cancel();
+
+    const prev = flashHistory.pop();
+    flashDeck = prev.deck;
+    flashIndex = prev.index;
+    flashCorrect = prev.correct;
+    flashWrong = prev.wrong;
+    flashSeen = prev.seen;
+
+    // If the session had ended, return to the card view
+    document.getElementById('flashDone').style.display = 'none';
+    document.getElementById('flashSession').style.display = '';
+
+    showFlashCard();
+    updateFlashUndoBtn();
   }
 
   function flashSpeak() {
@@ -1694,7 +1813,20 @@
   // ── Keyboard shortcuts ──
   document.addEventListener('keydown', (e) => {
     if (currentMode !== 'flash') return;
-    if (document.getElementById('flashSession').style.display === 'none') return;
+
+    const sessionVisible =
+      document.getElementById('flashSession').style.display !== 'none';
+
+    // Undo works during the session and on the "done" screen
+    if (e.key === 'Backspace' || e.key === 'u' || e.key === 'ArrowUp') {
+      if (flashHistory.length > 0) {
+        e.preventDefault();
+        flashUndo();
+      }
+      return;
+    }
+
+    if (!sessionVisible) return;
 
     if (e.key === ' ' || e.key === 'Enter') {
       e.preventDefault();
